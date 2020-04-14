@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Socket IO Chat</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+  <style>
+    .container {
+      text-align: center;
+    }
+
+    #rooms a {
+      margin: 5px;
+    }
+
+    #conversation {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
+
+    #conversation li {
+      padding: 5px 10px;
+    }
+
+    #conversation li:nth-child(even) {
+      color: white;
+      background: green;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="#">Chat Room Application</a>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="">Chat Room <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="history">History</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="roomhistory">Room History</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="eventlog">Event History</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="jumbotron">
+      <h1>Welcome To Our Chat Room Application</h1>
+      <h2>Change rooms</h2>
+      <ui id="rooms"></ui>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="jumbotron">
+      <ui id="conversation"></ui>
+      <input id="data" style="width:200px;" />
+      <input type="button" id="datasend" value="send" />
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+  <script>
+    var socket = io.connect("http://localhost:4500");
+
+    // on connection to server, ask for user's name with an anonymous callback
+    socket.on("connect", function () {
+      // call the server-side function 'adduser' and send one parameter (value of prompt)
+      socket.emit("adduser", prompt("What's your name?"));
+    });
+
+    // listener, whenever the server emits 'updatechat', this updates the chat body
+    socket.on("updatechat", function (username, data) {
+      $("#conversation").append(
+        "<li>" + username + ":</b> " + data + "</li>"
+      );
+    });
+    // listener, whenever the server emits 'updaterooms', this updates the room the client is in
+    socket.on("updaterooms", function (rooms, current_room) {
+      $("#rooms").empty();
+      $.each(rooms, function (key, value) {
+        if (value == current_room) {
+          $("#rooms").append('<a class="btn btn-light">' + value + "</a>");
+        } else {
+          $("#rooms").append(
+            '<a class="btn btn-primary" href="#" onclick="switchRoom(\'' +
+            value +
+            "')\">" +
+            value +
+            "</a>"
+          );
+        }
+      });
+    });
+    function switchRoom(room) {
+      $("#conversation li").remove();
+      socket.emit("switchRoom", room);
+    }
+    // on load of page 
+    $(function () {
+      // when the client clicks SEND
+      $("#datasend").click(function () {
+        var message = $("#data").val();
+        $("#data").val("");
+        // tell server to execute 'sendchat' and send along one parameter
+        socket.emit("sendchat", message);
+      });
+      // when the client hits ENTER on their keyboard
+      $("#data").keypress(function (e) {
+        if (e.which == 13) {
+          $(this).blur();
+          $("#datasend")
+            .focus()
+            .click();
+        }
+      });
+    });
+  </script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+</body>
+</html>

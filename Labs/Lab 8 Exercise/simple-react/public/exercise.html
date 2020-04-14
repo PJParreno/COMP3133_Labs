@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      .box {
+        border: 1px solid #ccc;
+        padding: 10px;
+      }
+
+      .button {
+        background-color: #174e7d;
+        border-radius: 5px;
+        color: #fff;
+        display: inline-block;
+        margin-bottom: 5px;
+        padding: 5px 15px;
+        text-decoration: none;
+      }
+    </style>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <h1>Match This</h1>
+    <div class="box">
+      <div>
+        <a href="#" class="button">Button</a>
+        <div>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec
+          odio. Praesent libero.
+        </div>
+      </div>
+    </div>
+
+    <h1>Your Implementation</h1>
+    <div id="impl" class="box"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js"></script>
+
+    <script type="text/babel">
+      var button = <a className="button">Button</a>;
+
+      var ipsumText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero.";
+
+      class Button extends React.Component {
+      render() {
+          return (<a className="button">Button</a>);
+        }
+      }
+
+      class IpsumText extends React.Component {
+      render() {
+          return (<span>{ipsumText}</span>);
+        }
+      }
+      // We can do it 2 ways, through a class and from a variable
+        // {button}<br />{ipsumText}
+      ReactDOM.render(<div><Button /><br /><IpsumText /></div>, document.getElementById("impl"));
+    </script>
+  </body>
+</html>
